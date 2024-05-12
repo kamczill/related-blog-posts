@@ -1,0 +1,76 @@
+{% comment %}
+  Renders a blog post card for a given blog.
+
+  Accepts:
+  - article: {Object} Article object
+
+  Usage:
+  {% render 'RelatedPost' article: article %}
+{% endcomment %}
+
+{% if article and article != empty %}
+  <div class="related-post {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+    <a href="{{ article.url }}" class="related-post__image">
+      <img
+        srcset="
+          {%- if article.image.width >= 165 -%}{{ article.image | image_url: width: 165 }} 165w,{%- endif -%}
+          {%- if article.image.width >= 330 -%}{{ article.image | image_url: width: 330 }} 330w,{%- endif -%}
+          {%- if article.image.width >= 535 -%}{{ article.image | image_url: width: 535 }} 535w,{%- endif -%}
+          {%- if article.image.width >= 750 -%}{{ article.image | image_url: width: 750 }} 750w,{%- endif -%}
+          {%- if article.image.width >= 1000 -%}{{ article.image | image_url: width: 1000 }} 1000w,{%- endif -%}
+          {%- if article.image.width >= 1500 -%}{{ article.image | image_url: width: 1500 }} 1500w,{%- endif -%}
+          {%- if article.image.width >= 3000 -%}{{ article.image | image_url: width: 3000 }} 3000w,{%- endif -%}
+          {{ article.image | image_url }} {{ article.image.width }}w
+        "
+        src="{{ article.image | image_url: width: 1500 }}"
+        sizes="
+          (min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | divided_by: columns }}px,
+          (min-width: 750px) {% if columns > 1 %}calc((100vw - 10rem) / 2){% else %}calc(100vw - 10rem){% endif %},
+          calc(100vw - 3rem)
+        "
+        alt="{{ article.image.alt | escape }}"
+        height="{{ article.image.height }}"
+        width="{{ article.image.width }}"
+        loading="lazy"
+        class="motion-reduce"
+      >
+      {% if article.tags.size > 0 %}
+        <div class="related-post__tags">
+          {% for tag in article.tags limit: 3 %}
+            <div class="related-post__tag">
+              {{ tag }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </a>
+
+    <div class="related-post__desc">
+      <div class="related-post__about">
+        <p class="related-post__date">{{ article.published_at | date: '%B %d, %Y' }}</p>
+        <span>-</span>
+        <p class="related-post__author">{{ article.author }}</p>
+      </div>
+      <a href="{{ article.url }}" class="related-post__title">{{ article.title }} </a>
+    </div>
+  </div>
+{% else %}
+  <div class="related-post">
+    <div class="related-post__image">
+      {{ 'collection-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      <div class="related-post__tags">
+        <div class="related-post__tag">Example</div>
+        <div class="related-post__tag">Tags</div>
+      </div>
+    </div>
+
+    <div class="related-post__desc">
+      <div class="related-post__about">
+        <p class="related-post__date">{{ 'now' | date: '%B %d, %Y' }}</p>
+        <span>-</span>
+        <p class="related-post__author">Example author</p>
+      </div>
+      <a href="{{ article.url }}" class="related-post__title">Example Article Title</a>
+    </div>
+  </div>
+{% endif %}

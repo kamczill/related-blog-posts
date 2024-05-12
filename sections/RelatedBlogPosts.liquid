@@ -1,0 +1,135 @@
+{% comment %} The styles file which include styles for related-blog-posts and for RelatedPost snippet {% endcomment %}
+{{ 'related-products.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{% comment %}
+  This section displays related blog posts for each product, utilizing the metafields `custom.related_blog_posts`.
+  If a product does not have any associated blog posts defined in its metafields,
+  the section defaults to displaying alternative blog posts specified in the section settings.
+{% endcomment %}
+
+<div class="related-blog-posts section-{{ section.id }}-padding">
+  <h2
+    id="SectionHeading-{{ section.id }}"
+    class="collection-list-title inline-richtext {{ section.settings.heading_size }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+  >
+    {{ section.settings.title }}
+  </h2>
+  <div
+    class="rich-text__text rte{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+  >
+    {{ section.settings.text }}
+  </div>
+  <div class="related-blog-posts__container">
+    {% assign related_blog_posts = product.metafields.custom.related_blog_posts | split: '|' %}
+
+    {% if related_blog_posts.size > 0 %}
+      {% for post in related_blog_posts limit: 2 %}
+        {% render 'RelatedPost', article: articles[post] %}
+      {% endfor %}
+    {% else %}
+      {% assign alternative_blog_post1 = section.settings.blog_post1 %}
+      {% assign alternative_blog_post2 = section.settings.blog_post2 %}
+
+      {% render 'RelatedPost', article: alternative_blog_post1 %}
+      {% render 'RelatedPost', article: alternative_blog_post2 %}
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Related blog posts",
+  "tag": "section",
+  "class": "section section-related-blog-posts page-width",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "default": "Collections",
+      "label": "t:sections.collection-list.settings.title.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "h2",
+          "label": "t:sections.all.heading_size.options__1.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.all.heading_size.options__2.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.all.heading_size.options__3.label"
+        }
+      ],
+      "default": "h1",
+      "label": "t:sections.all.heading_size.label"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "default": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.</p>",
+      "label": "t:sections.rich-text.blocks.text.settings.text.label"
+    },
+    {
+      "type": "header",
+      "content": "Alternative blog posts",
+      "info": "They are displayed when the product does not have related blog posts defined in its metafields."
+    },
+    {
+      "type": "article",
+      "id": "blog_post1",
+      "label": "First blog post"
+    },
+    {
+      "type": "article",
+      "id": "blog_post2",
+      "label": "Second blog post"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ]
+}
+{% endschema %}
